@@ -2,6 +2,11 @@ import numpy as np
 
 
 def utility(fitness):
+    """
+    Utility function for fitness shaping.
+    See Wierstra et al. (2014). Natural evolution strategies. Journal of Machine Learning Research, 15(1), 949-980.
+    """
+
     n = len(fitness)
     order = np.argsort(fitness)[::-1]
     fitness = fitness[order]
