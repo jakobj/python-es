@@ -3,14 +3,21 @@ import numpy as np
 from . import lib
 
 
-def optimize(func, mu, sigma, learning_rate_mu, learning_rate_sigma,
-             sigma_lower_bound=0.0001, max_iter=2000, population_size=40,
-             fitness_shaping=True, record_history=False):
+def optimize(func, mu, sigma,
+             learning_rate_mu=None, learning_rate_sigma=None, population_size=None,
+             max_iter=2000, fitness_shaping=True, record_history=False):
     """
     Evolutionary strategies using the natural gradient of multinormal search distributions in natural coordinates.
     Does not consider covariances between parameters.
     See Wierstra et al. (2014). Natural evolution strategies. Journal of Machine Learning Research, 15(1), 949-980.
     """
+
+    if learning_rate_mu is None:
+        learning_rate_mu = lib.default_learning_rate_mu()
+    if learning_rate_sigma is None:
+        learning_rate_sigma = lib.default_learning_rate_sigma(mu.size)
+    if population_size is None:
+        population_size = lib.default_population_size(mu.size)
 
     generation = 0
     history_mu = []

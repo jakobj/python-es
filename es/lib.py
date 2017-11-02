@@ -1,6 +1,27 @@
 import numpy as np
 
 
+def default_population_size(dimensions):
+    """
+    See Wierstra et al. (2014). Natural evolution strategies. Journal of Machine Learning Research, 15(1), 949-980.
+    """
+    return 4 + int(np.floor(3 * np.log(dimensions)))
+
+
+def default_learning_rate_mu():
+    """
+    See Wierstra et al. (2014). Natural evolution strategies. Journal of Machine Learning Research, 15(1), 949-980.
+    """
+    return 1
+
+
+def default_learning_rate_sigma(dimensions):
+    """
+    See Wierstra et al. (2014). Natural evolution strategies. Journal of Machine Learning Research, 15(1), 949-980.
+    """
+    return (3 + np.log(dimensions)) / (10. * np.sqrt(dimensions))
+
+
 def utility(fitness):
     """
     Utility function for fitness shaping.
