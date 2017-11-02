@@ -4,7 +4,7 @@ import sys
 
 sys.path.append('../es')
 
-from es import natural_es
+from es import natural_es as nes
 
 TOLERANCE_1D = 0.05
 TOLERANCE_2D = 0.05
@@ -23,7 +23,7 @@ def test_quadratic_1d():
         def f(x):
             return (x - x0) ** 2
 
-        res = natural_es.optimize(f, np.array(mu), np.array(sigma), learning_rate_mu, learning_rate_sigma, max_iter=5000)
+        res = nes.optimize(f, np.array(mu), np.array(sigma), learning_rate_mu, learning_rate_sigma, max_iter=5000)
 
         assert(abs(res['mu'] - x0) < TOLERANCE_1D), SEED
 
@@ -43,7 +43,7 @@ def test_quadratic_2d():
         def f(x):
             return (x[0] - x0) ** 2 + (x[1] - y0) ** 2
 
-        res = natural_es.optimize(f, np.array([mu_x, mu_y]), np.array([sigma_x, sigma_y]), learning_rate_mu, learning_rate_sigma, max_iter=5000)
+        res = nes.optimize(f, np.array([mu_x, mu_y]), np.array([sigma_x, sigma_y]), learning_rate_mu, learning_rate_sigma, max_iter=5000)
 
         assert(abs(res['mu'][0] - x0) < TOLERANCE_2D), SEED
         assert(abs(res['mu'][1] - y0) < TOLERANCE_2D), SEED

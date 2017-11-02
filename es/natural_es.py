@@ -27,7 +27,7 @@ def optimize(func, mu, sigma, learning_rate_mu, learning_rate_sigma,
         else:
             utility = fitness
 
-        # update parameter of search distribution via plain gradient descent
+        # update parameter of search distribution via natural gradient descent
         mu -= learning_rate_mu * 1. / population_size * np.dot(utility, z - mu)
         sigma -= learning_rate_sigma * 1. / population_size * np.dot(utility, (z - mu) ** 2 - sigma ** 2) * 1. / (2. * sigma)
 
