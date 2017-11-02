@@ -22,7 +22,7 @@ def test_quadratic_1d():
         def f(x):
             return (x - x0) ** 2
 
-        res = nes.optimize(f, np.array(mu), np.array(sigma), max_iter=MAX_ITER)
+        res = nes.optimize(f, np.array([mu]), np.array([sigma]), max_iter=MAX_ITER, record_history=True)
 
         assert(abs(res['mu'] - x0) < TOLERANCE_1D), SEED
 
