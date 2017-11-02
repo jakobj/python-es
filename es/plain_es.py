@@ -3,14 +3,22 @@ import numpy as np
 from . import lib
 
 
-def optimize(func, learning_rate, mu, sigma,
-             sigma_lower_bound=0.1, max_iter=2000, population_size=40,
+def optimize(func, mu, sigma,
+             learning_rate_mu=None, learning_rate_sigma=None, population_size=None,
+             sigma_lower_bound=0.2, max_iter=2000,
              fitness_shaping=True, record_history=False):
     """
     Evolutionary strategies using the plain gradient of multinormal search distributions.
     Does not consider covariances between parameters.
     See Wierstra et al. (2014). Natural evolution strategies. Journal of Machine Learning Research, 15(1), 949-980.
     """
+
+    if learning_rate_mu is None:
+        learning_rate_mu = lib.default_learning_rate_mu()
+    if learning_rate_sigma is None:
+        learning_rate_sigma = lib.default_learning_rate_sigma(mu.size)
+    if population_size is None:
+        population_size = lib.default_population_size(mu.size)
 
     generation = 0
     history_mu = []
@@ -28,12 +36,12 @@ def optimize(func, learning_rate, mu, sigma,
             utility = fitness
 
         # update parameter of search distribution via plain gradient descent
-        mu -= learning_rate * 1. / population_size * np.dot(utility, z - mu) * 1. / sigma ** 2
-        sigma -= learning_rate * 1. / population_size * np.dot(utility, (z - mu) ** 2 - sigma ** 2) * 1. / sigma ** 3
+        mu -= learning_rate_mu * 1. / population_size * np.dot(utility, z - mu) * 1. / sigma ** 2
+        sigma -= learning_rate_sigma * 1. / population_size * np.dot(utility, (z - mu) ** 2 - sigma ** 2) * 1. / sigma ** 3
 
         # enforce lower bound on sigma to avoid instabilities
-        if np.any(sigma <= sigma_lower_bound):
-            sigma[sigma <= sigma_lower_bound] = sigma_lower_bound
+        if np.any(sigma < sigma_lower_bound):
+            sigma[sigma < sigma_lower_bound] = sigma_lower_bound
 
         if record_history:
             history_mu.append(mu.copy())
