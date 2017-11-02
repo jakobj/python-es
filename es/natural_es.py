@@ -4,7 +4,7 @@ from . import lib
 
 
 def optimize(func, mu, sigma,
-             learning_rate_mu=None, learning_rate_sigma=None, population_size=40,
+             learning_rate_mu=None, learning_rate_sigma=None, population_size=None,
              sigma_lower_bound=1e-12, max_iter=2000,
              fitness_shaping=True, record_history=False):
     """
