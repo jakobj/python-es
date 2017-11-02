@@ -44,3 +44,26 @@ def test_quadratic_2d():
 
         assert(abs(res['mu'][0] - x0) < TOLERANCE_2D), SEED
         assert(abs(res['mu'][1] - y0) < TOLERANCE_2D), SEED
+
+
+def test_rosenbrock():
+    np.random.seed(SEED)
+
+    sigma_x = 1.
+    sigma_y = 1.
+
+    for (mu_x, mu_y), (a, b) in zip(
+            zip(np.random.uniform(-5., 5., 10), np.random.uniform(-5., 5., 10)),
+            zip(np.random.uniform(0.5, 1.5, 10), np.random.uniform(90., 110., 10))):
+
+        theo_min = [a, a ** 2]
+
+        def f(x):
+            return (a - x[0]) ** 2 + b * (x[1] - x[0] ** 2) ** 2
+
+        res = snes.optimize(f, np.array([mu_x, mu_y]), np.array([sigma_x, sigma_y]),
+                            learning_rate_mu=0.1, learning_rate_sigma=0.00025,
+                            max_iter=50000)
+
+        assert(abs(res['mu'][0] - theo_min[0]) < 1e-2), SEED
+        assert(abs(res['mu'][1] - theo_min[1]) < 1e-2), SEED
