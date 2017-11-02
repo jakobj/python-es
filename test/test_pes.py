@@ -8,7 +8,7 @@ from es import plain_es as pes
 
 TOLERANCE_1D = 0.15
 TOLERANCE_2D = 0.15
-MAX_ITER = 3000
+MAX_ITER = 500
 SEED = np.random.randint(2 ** 32)  # store seed to be able to reproduce errors
 
 
@@ -22,12 +22,7 @@ def test_quadratic_1d():
         def f(x):
             return (x - x0) ** 2
 
-        res = pes.optimize(f, np.array(mu), np.array(sigma), population_size=50, max_iter=MAX_ITER, record_history=False)
-
-        # plt.plot(res['history_mu'], 'b')
-        # plt.plot(res['history_sigma'], 'm')
-        # plt.axhline(x0, color='k')
-        # plt.show()
+        res = pes.optimize(f, np.array([mu]), np.array([sigma]), population_size=200, max_iter=MAX_ITER)
 
         assert(abs(res['mu'] - x0) < TOLERANCE_1D), SEED
 
@@ -45,7 +40,7 @@ def test_quadratic_2d():
         def f(x):
             return (x[0] - x0) ** 2 + (x[1] - y0) ** 2
 
-        res = pes.optimize(f, np.array([mu_x, mu_y]), np.array([sigma_x, sigma_y]), population_size=50, max_iter=MAX_ITER)
+        res = pes.optimize(f, np.array([mu_x, mu_y]), np.array([sigma_x, sigma_y]), population_size=200, max_iter=MAX_ITER)
 
         assert(abs(res['mu'][0] - x0) < TOLERANCE_2D), SEED
         assert(abs(res['mu'][1] - y0) < TOLERANCE_2D), SEED

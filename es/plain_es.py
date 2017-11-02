@@ -5,8 +5,8 @@ from . import lib
 
 def optimize(func, mu, sigma,
              learning_rate_mu=None, learning_rate_sigma=None, population_size=None,
-             sigma_lower_bound=0.2, max_iter=2000,
-             fitness_shaping=True, record_history=False):
+             sigma_lower_bound=0.1, max_iter=2000,
+             fitness_shaping=True, mirrored_sampling=True, record_history=False):
     """
     Evolutionary strategies using the plain gradient of multinormal search distributions.
     Does not consider covariances between parameters.
@@ -26,7 +26,12 @@ def optimize(func, mu, sigma,
     history_pop = []
 
     while True:
-        z = np.random.normal(mu, sigma, size=(population_size, *np.shape(mu)))
+        s = np.random.normal(0, 1, size=(population_size, *mu.shape))
+        z = mu + sigma * s
+
+        if mirrored_sampling:
+            z = np.vstack([z, mu - sigma * s])
+
         fitness = np.fromiter((func(zi) for zi in z), np.float)
 
         if fitness_shaping:
@@ -39,7 +44,7 @@ def optimize(func, mu, sigma,
         mu -= learning_rate_mu * 1. / population_size * np.dot(utility, z - mu) * 1. / sigma ** 2
         sigma -= learning_rate_sigma * 1. / population_size * np.dot(utility, (z - mu) ** 2 - sigma ** 2) * 1. / sigma ** 3
 
-        # enforce lower bound on sigma to avoid instabilities
+        # enforce lower bound on sigma to avoid numerical instabilities
         if np.any(sigma < sigma_lower_bound):
             sigma[sigma < sigma_lower_bound] = sigma_lower_bound
 
