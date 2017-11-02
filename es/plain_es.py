@@ -4,7 +4,7 @@ from . import lib
 
 
 def optimize(func, learning_rate, mu, sigma,
-             sigma_lower_bound=0.1, max_iter=2000, population_size=30,
+             sigma_lower_bound=0.1, max_iter=2000, population_size=40,
              fitness_shaping=True, record_history=False):
     """
     Evolutionary strategies using the plain gradient of multinormal search distributions.
@@ -16,19 +16,16 @@ def optimize(func, learning_rate, mu, sigma,
     history_mu = []
     history_sigma = []
     history_pop = []
-    success = False
 
     while True:
         z = np.random.normal(mu, sigma, size=(population_size, *np.shape(mu)))
-        fitness = np.array([func(zi) for zi in z])
+        fitness = np.fromiter((func(zi) for zi in z), np.float)
 
         if fitness_shaping:
             order, utility = lib.utility(fitness)
             z = z[order]
         else:
             utility = fitness
-
-        mu_prev = mu.copy()
 
         # update parameter of search distribution via plain gradient descent
         mu -= learning_rate * 1. / population_size * np.dot(utility, z - mu) * 1. / sigma ** 2
