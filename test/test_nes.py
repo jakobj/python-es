@@ -6,8 +6,8 @@ sys.path.append('../es')
 
 from es import natural_es as nes
 
-TOLERANCE_1D = 1e-10
-TOLERANCE_2D = 1e-10
+TOLERANCE_1D = 1e-9
+TOLERANCE_2D = 1e-9
 MAX_ITER = 3000
 SEED = np.random.randint(2 ** 32)  # store seed to be able to reproduce errors
 

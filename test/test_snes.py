@@ -6,8 +6,8 @@ sys.path.append('../es')
 
 from es import separable_natural_es as snes
 
-TOLERANCE_1D = 1e-10
-TOLERANCE_2D = 1e-10
+TOLERANCE_1D = 1e-9
+TOLERANCE_2D = 1e-9
 MAX_ITER = 2000
 SEED = np.random.randint(2 ** 32)  # store seed to be able to reproduce errors
 
