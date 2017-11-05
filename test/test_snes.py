@@ -46,6 +46,31 @@ def test_quadratic_2d():
         assert(abs(res['mu'][1] - y0) < TOLERANCE_2D), SEED
 
 
+def test_quadratic_2d_non_isotropic():
+    np.random.seed(SEED)
+
+    sigma_x = 1.
+    sigma_y = 1.
+
+    for (mu_x, mu_y), (x0, y0) in zip(
+            zip(np.random.uniform(-5., 5., 10), np.random.uniform(-5., 5., 10)),
+            zip(np.random.uniform(-5., 5., 10), np.random.uniform(-5., 5., 10))):
+
+        def f(x):
+            return (x[0] - x0) ** 2 + 0.01 * (x[1] - y0) ** 2
+
+        res = snes.optimize(f, np.array([mu_x, mu_y]), np.array([sigma_x, sigma_y]), max_iter=MAX_ITER, record_history=True)
+
+        assert(abs(res['mu'][0] - x0) < TOLERANCE_2D), SEED
+        assert(abs(res['mu'][1] - y0) < TOLERANCE_2D), SEED
+
+        # check that width of search distribution in x direction is in
+        # most steps smaller than in y direction
+        history_sigma = np.array(res['history_sigma'])
+        assert(np.sum([sx < sy for sx, sy in zip(history_sigma[:, 0], history_sigma[:, 1])])
+               >= 0.98 * len(history_sigma))
+
+
 def test_rosenbrock():
     np.random.seed(SEED)
 
