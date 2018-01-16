@@ -1,5 +1,5 @@
 # python-es
-Evolutionary strategies in Python.
+Evolution strategies in Python.
 
 References:
 - Wierstra, D., Schaul, T., Peters, J., & Schmidhuber, J. (2008). Natural evolution strategies. In Evolutionary Computation, 2008. CEC 2008.(IEEE World Congress on Computational Intelligence) (pp. 3381-3387).

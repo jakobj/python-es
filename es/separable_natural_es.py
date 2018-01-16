@@ -8,7 +8,7 @@ def optimize(func, mu, sigma,
              max_iter=2000,
              fitness_shaping=True, mirrored_sampling=True, record_history=False):
     """
-    Evolutionary strategies using the natural gradient of multinormal search distributions in natural coordinates.
+    Evolution strategies using the natural gradient of multinormal search distributions in natural coordinates.
     Does not consider covariances between parameters.
     See Wierstra et al. (2014). Natural evolution strategies. Journal of Machine Learning Research, 15(1), 949-980.
     """
