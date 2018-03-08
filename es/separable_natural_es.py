@@ -29,6 +29,7 @@ def optimize(func, mu, sigma,
     history_mu = []
     history_sigma = []
     history_pop = []
+    history_fitness = []
 
     while True:
         s = np.random.normal(0, 1, size=(population_size, *np.shape(mu)))
@@ -55,6 +56,7 @@ def optimize(func, mu, sigma,
             history_mu.append(mu.copy())
             history_sigma.append(sigma.copy())
             history_pop.append(z.copy())
+            history_fitness.append(fitness.copy())
 
         generation += 1
 
@@ -62,4 +64,8 @@ def optimize(func, mu, sigma,
         if generation > max_iter or np.all(sigma < 1e-10):
             break
 
-    return {'mu': mu, 'sigma': sigma, 'history_mu': history_mu, 'history_sigma': history_sigma, 'history_pop': history_pop}
+    return {'mu': mu,
+            'sigma': sigma,
+            'history_mu': history_mu,
+            'history_sigma': history_sigma,
+            'history_fitness': history_fitness}
