@@ -40,6 +40,14 @@ def optimize(func, mu, sigma,
             s = np.vstack([s, -s])
 
         fitness = np.fromiter((func(zi) for zi in z), np.float)
+        # print(mu)
+        z = z[np.logical_not(np.isnan(fitness))]
+        s = s[np.logical_not(np.isnan(fitness))]
+        fitness = fitness[np.logical_not(np.isnan(fitness))]
+
+        print("Gen {}, Fitness Mean {:.3f}, Fitness Std {:.3f}".format(generation,
+                                                                       np.mean(fitness),
+                                                                       np.std(fitness)))
 
         if fitness_shaping:
             order, utility = lib.utility(fitness)
@@ -47,10 +55,10 @@ def optimize(func, mu, sigma,
             z = z[order]
         else:
             utility = fitness
-
-        # update parameter of search distribution via natural gradient descent in natural coordinates
+        # update parameter of search distribution via natural gradient descent in
+        # natural coordinates
         mu -= learning_rate_mu * sigma * np.dot(utility, s)
-        sigma *= np.exp(-learning_rate_sigma / 2. * np.dot(utility, s ** 2 - 1))
+        sigma *= np.exp(-1.*learning_rate_sigma / 2. * np.dot(utility, s ** 2 - 1))
 
         if record_history:
             history_mu.append(mu.copy())
@@ -68,4 +76,5 @@ def optimize(func, mu, sigma,
             'sigma': sigma,
             'history_mu': history_mu,
             'history_sigma': history_sigma,
-            'history_fitness': history_fitness}
+            'history_fitness': history_fitness,
+            'history_pop': history_pop}
