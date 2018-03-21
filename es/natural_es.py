@@ -48,8 +48,8 @@ def optimize(func, mu, sigma,
             utility = fitness
 
         # update parameter of search distribution via natural gradient descent
-        mu -= learning_rate_mu * sigma * 1. / len(s) * np.dot(utility, s)
-        sigma -= learning_rate_sigma / 2. * 1. / len(s) * sigma * np.dot(utility, s ** 2 - 1.)
+        mu += learning_rate_mu * sigma * 1. / len(s) * np.dot(utility, s)
+        sigma += learning_rate_sigma / 2. * 1. / len(s) * sigma * np.dot(utility, s ** 2 - 1.)
 
         # enforce lower bound on sigma to avoid negative values
         if np.any(sigma < sigma_lower_bound):

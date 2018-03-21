@@ -2,13 +2,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
-sys.path.append('../es')
+sys.path.append('../')
 
 from es import separable_natural_es as snes
+import functions
 
 TOLERANCE_1D = 1e-9
 TOLERANCE_2D = 1e-9
+TOLERANCE_ROSENBROCK = 1e-2
 MAX_ITER = 2000
+MAX_ITER_ROSENBROCK = 50000
 SEED = np.random.randint(2 ** 32)  # store seed to be able to reproduce errors
 
 
@@ -20,7 +23,7 @@ def test_quadratic_1d():
     for mu, x0 in zip(np.random.uniform(-5., 5., 10), np.random.uniform(-5., 5., 10)):
 
         def f(x):
-            return (x - x0) ** 2
+            return functions.f_1d(x, x0)
 
         res = snes.optimize(f, np.array([mu]), np.array([sigma]), max_iter=MAX_ITER)
 
@@ -38,7 +41,7 @@ def test_quadratic_2d():
             zip(np.random.uniform(-5., 5., 10), np.random.uniform(-5., 5., 10))):
 
         def f(x):
-            return (x[0] - x0) ** 2 + (x[1] - y0) ** 2
+            return functions.f_2d(x, x0, y0)
 
         res = snes.optimize(f, np.array([mu_x, mu_y]), np.array([sigma_x, sigma_y]), max_iter=MAX_ITER)
 
@@ -57,7 +60,7 @@ def test_quadratic_2d_non_isotropic():
             zip(np.random.uniform(-5., 5., 10), np.random.uniform(-5., 5., 10))):
 
         def f(x):
-            return (x[0] - x0) ** 2 + 0.01 * (x[1] - y0) ** 2
+            return functions.f_2d_nonisotropic(x, x0, y0)
 
         res = snes.optimize(f, np.array([mu_x, mu_y]), np.array([sigma_x, sigma_y]), max_iter=MAX_ITER, record_history=True)
 
@@ -68,7 +71,7 @@ def test_quadratic_2d_non_isotropic():
         # most steps smaller than in y direction
         history_sigma = np.array(res['history_sigma'])
         assert(np.sum([sx < sy for sx, sy in zip(history_sigma[:, 0], history_sigma[:, 1])])
-               >= 0.98 * len(history_sigma))
+               >= 0.9 * len(history_sigma))
 
 
 def test_rosenbrock():
@@ -84,11 +87,11 @@ def test_rosenbrock():
         theo_min = [a, a ** 2]
 
         def f(x):
-            return (a - x[0]) ** 2 + b * (x[1] - x[0] ** 2) ** 2
+            return functions.f_rosenbrock(x, a, b)
 
         res = snes.optimize(f, np.array([mu_x, mu_y]), np.array([sigma_x, sigma_y]),
-                            learning_rate_mu=0.1, learning_rate_sigma=0.00025,
-                            max_iter=50000)
+                            # learning_rate_mu=0.1, learning_rate_sigma=0.00025,
+                            max_iter=MAX_ITER_ROSENBROCK)
 
-        assert(abs(res['mu'][0] - theo_min[0]) < 1e-2), SEED
-        assert(abs(res['mu'][1] - theo_min[1]) < 1e-2), SEED
+        assert(abs(res['mu'][0] - theo_min[0]) < TOLERANCE_ROSENBROCK), SEED
+        assert(abs(res['mu'][1] - theo_min[1]) < TOLERANCE_ROSENBROCK), SEED
