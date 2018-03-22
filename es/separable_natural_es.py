@@ -2,7 +2,6 @@ import numpy as np
 
 from . import lib
 
-
 def optimize(func, mu, sigma,
              learning_rate_mu=None, learning_rate_sigma=None, population_size=None,
              max_iter=2000,
