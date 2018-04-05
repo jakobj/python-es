@@ -1,12 +1,13 @@
+import multiprocessing as mp
 import numpy as np
-
 from . import lib
 
 def optimize(func, mu, sigma,
              learning_rate_mu=None, learning_rate_sigma=None, population_size=None,
              max_iter=2000,
              fitness_shaping=True, mirrored_sampling=True, record_history=False,
-             rng=None):
+             rng=None,
+             parallel_threads=None):
     """
     Evolution strategies using the natural gradient of multinormal search distributions in natural coordinates.
     Does not consider covariances between parameters.
@@ -43,9 +44,13 @@ def optimize(func, mu, sigma,
         if mirrored_sampling:
             z = np.vstack([z, mu - sigma * s])
             s = np.vstack([s, -s])
-
-        fitness = np.fromiter((func(zi) for zi in z), np.float)
-
+        if parallel_threads is None:
+            fitness = np.fromiter((func(zi) for zi in z), np.float)
+        else:
+            pool = mp.Pool(processes=parallel_threads)
+            fitness = np.fromiter(pool.map(func, z), np.float)
+            pool.close()
+            pool.join()
         if fitness_shaping:
             order, utility = lib.utility(fitness)
             s = s[order]
