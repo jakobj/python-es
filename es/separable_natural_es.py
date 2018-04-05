@@ -2,7 +2,6 @@ import numpy as np
 
 from . import lib
 
-
 def optimize(func, mu, sigma,
              learning_rate_mu=None, learning_rate_sigma=None, population_size=None,
              max_iter=2000,
@@ -49,8 +48,8 @@ def optimize(func, mu, sigma,
             utility = fitness
 
         # update parameter of search distribution via natural gradient descent in natural coordinates
-        mu -= learning_rate_mu * sigma * np.dot(utility, s)
-        sigma *= np.exp(-learning_rate_sigma / 2. * np.dot(utility, s ** 2 - 1))
+        mu += learning_rate_mu * sigma * np.dot(utility, s)
+        sigma *= np.exp(learning_rate_sigma / 2. * np.dot(utility, s ** 2 - 1))
 
         if record_history:
             history_mu.append(mu.copy())

@@ -2,13 +2,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
-sys.path.append('../es')
+sys.path.append('../')
 
 from es import plain_es as pes
+import functions
 
 TOLERANCE_1D = 0.15
 TOLERANCE_2D = 0.15
-MAX_ITER = 500
+MAX_ITER = 2000
 SEED = np.random.randint(2 ** 32)  # store seed to be able to reproduce errors
 
 
@@ -20,7 +21,7 @@ def test_quadratic_1d():
     for mu, x0 in zip(np.random.uniform(-5., 5., 10), np.random.uniform(-5., 5., 10)):
 
         def f(x):
-            return (x - x0) ** 2
+            return functions.f_1d(x, x0)
 
         res = pes.optimize(f, np.array([mu]), np.array([sigma]), population_size=200, max_iter=MAX_ITER)
 
@@ -38,7 +39,7 @@ def test_quadratic_2d():
             zip(np.random.uniform(-5., 5., 10), np.random.uniform(-5., 5., 10))):
 
         def f(x):
-            return (x[0] - x0) ** 2 + (x[1] - y0) ** 2
+            return functions.f_2d(x, x0, y0)
 
         res = pes.optimize(f, np.array([mu_x, mu_y]), np.array([sigma_x, sigma_y]), population_size=200, max_iter=MAX_ITER)
 
