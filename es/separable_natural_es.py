@@ -44,20 +44,16 @@ def optimize(func, mu, sigma,
         s = s[ni]
         fitness = fitness[ni]
 
-        print("Gen {}, Fitness Mean {:.3f}, Fitness Std {:.3f}".format(generation,
-                                                                       np.mean(fitness),
-                                                                       np.std(fitness)))
-
         if fitness_shaping:
             order, utility = lib.utility(fitness)
             s = s[order]
             z = z[order]
         else:
             utility = fitness
-        # update parameter of search distribution via natural gradient descent in
-        # natural coordinates
-        mu -= learning_rate_mu * sigma * np.dot(utility, s)
-        sigma *= np.exp(-1.*learning_rate_sigma / 2. * np.dot(utility, s ** 2 - 1))
+
+        # update parameter of search distribution via natural gradient descent in natural coordinates
+        mu += learning_rate_mu * sigma * np.dot(utility, s)
+        sigma *= np.exp(learning_rate_sigma / 2. * np.dot(utility, s ** 2 - 1))
 
         if record_history:
             history_mu.append(mu.copy())
