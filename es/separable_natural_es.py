@@ -39,10 +39,10 @@ def optimize(func, mu, sigma,
             s = np.vstack([s, -s])
 
         fitness = np.fromiter((func(zi) for zi in z), np.float)
-        # print(mu)
-        z = z[np.logical_not(np.isnan(fitness))]
-        s = s[np.logical_not(np.isnan(fitness))]
-        fitness = fitness[np.logical_not(np.isnan(fitness))]
+        ni = np.logical_not(np.isnan(fitness))
+        z = z[ni]
+        s = s[ni]
+        fitness = fitness[ni]
 
         print("Gen {}, Fitness Mean {:.3f}, Fitness Std {:.3f}".format(generation,
                                                                        np.mean(fitness),
