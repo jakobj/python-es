@@ -5,8 +5,9 @@ from . import lib
 
 def optimize(func, mu, sigma,
              learning_rate_mu=None, learning_rate_sigma=None, population_size=None,
-             sigma_lower_bound=0.1, max_iter=2000,
-             fitness_shaping=True, mirrored_sampling=True, record_history=False):
+             sigma_lower_bound=1e-10, max_iter=2000,
+             fitness_shaping=True, mirrored_sampling=True, record_history=False,
+             rng=None):
     """
     Evolution strategies using the plain gradient of multinormal search distributions.
     Does not consider covariances between parameters.
@@ -20,13 +21,18 @@ def optimize(func, mu, sigma,
     if population_size is None:
         population_size = lib.default_population_size(mu.size)
 
+    if rng is None:
+        rng = np.random.RandomState()
+    elif isinstance(rng, int):
+        rng = np.random.RandomState(seed=rng)
+
     generation = 0
     history_mu = []
     history_sigma = []
     history_pop = []
 
     while True:
-        s = np.random.normal(0, 1, size=(population_size, *mu.shape))
+        s = rng.normal(0, 1, size=(population_size, *mu.shape))
         z = mu + sigma * s
 
         if mirrored_sampling:

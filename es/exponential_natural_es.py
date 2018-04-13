@@ -16,7 +16,8 @@ def is_positive_definite(B):
 def optimize(func, mu, cov,
              learning_rate_mu=None, learning_rate_sigma=None, learning_rate_B=None,
              population_size=None, max_iter=2000,
-             fitness_shaping=True, mirrored_sampling=True, record_history=False):
+             fitness_shaping=True, mirrored_sampling=True, record_history=False,
+             rng=None):
     """
     Evolution strategies using the natural gradient of multinormal search distributions in natural coordinates.
     Does not consider covariances between parameters.
@@ -42,6 +43,11 @@ def optimize(func, mu, cov,
     if not is_positive_definite(cov):
         raise ValueError('covariance matrix needs to be positive semidefinite')
 
+    if rng is None:
+        rng = np.random.RandomState()
+    elif isinstance(rng, int):
+        rng = np.random.RandomState(seed=rng)
+
     generation = 0
     history_mu = []
     history_cov = []
@@ -64,7 +70,7 @@ def optimize(func, mu, cov,
     while True:
         assert(abs(np.linalg.det(B) - 1.) < 1e-12), 'determinant of root of covariance matrix unequal one'
 
-        s = np.random.normal(0, 1, size=(population_size, *np.shape(mu)))
+        s = rng.normal(0, 1, size=(population_size, *np.shape(mu)))
         z = mu + sigma * np.dot(s, B)
 
         if mirrored_sampling:
