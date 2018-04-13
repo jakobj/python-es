@@ -44,6 +44,7 @@ def optimize(func, mu, sigma,
         if mirrored_sampling:
             z = np.vstack([z, mu - sigma * s])
             s = np.vstack([s, -s])
+
         if parallel_threads is None:
             fitness = np.fromiter((func(zi) for zi in z), np.float)
         else:
@@ -51,6 +52,12 @@ def optimize(func, mu, sigma,
             fitness = np.fromiter(pool.map(func, z), np.float)
             pool.close()
             pool.join()
+
+        ni = np.logical_not(np.isnan(fitness))
+        z = z[ni]
+        s = s[ni]
+        fitness = fitness[ni]
+
         if fitness_shaping:
             order, utility = lib.utility(fitness)
             s = s[order]
@@ -78,4 +85,6 @@ def optimize(func, mu, sigma,
             'sigma': sigma,
             'history_mu': history_mu,
             'history_sigma': history_sigma,
-            'history_fitness': history_fitness}
+            'history_fitness': history_fitness,
+            'history_pop': history_pop}
+  
