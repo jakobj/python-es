@@ -45,6 +45,10 @@ def optimize(func, mu, sigma,
             s = np.vstack([s, -s])
 
         fitness = np.fromiter((func(zi) for zi in z), np.float)
+        ni = np.logical_not(np.isnan(fitness))
+        z = z[ni]
+        s = s[ni]
+        fitness = fitness[ni]
 
         if fitness_shaping:
             order, utility = lib.utility(fitness)
@@ -73,4 +77,5 @@ def optimize(func, mu, sigma,
             'sigma': sigma,
             'history_mu': history_mu,
             'history_sigma': history_sigma,
-            'history_fitness': history_fitness}
+            'history_fitness': history_fitness,
+            'history_pop': history_pop}
