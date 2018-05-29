@@ -1,6 +1,29 @@
+import glob
 import multiprocessing as mp
 import numpy as np
+import pickle
 from . import lib
+
+
+def load_checkpoint():
+    filenames = glob.glob('checkpoint-*.pkl')
+    if filenames:
+        most_recent_checkpoint = max(filenames, key=lambda x: int(x.split('-')[1].split('.')[0]))
+        with open(most_recent_checkpoint, 'rb') as f:
+            most_recent_state = pickle.load(f)
+        return most_recent_state
+    else:
+        return None
+
+
+def create_checkpoint(locals_dict, whitelist, label):
+    state = extract_keys_from_dict(locals_dict, whitelist)
+    with open('checkpoint-{}.pkl'.format(label), 'wb') as f:
+        pickle.dump(state, f)
+
+
+def extract_keys_from_dict(d, whitelist, blacklist=[]):
+    return {key: value for key, value in d.items() if key in whitelist and key not in blacklist}
 
 
 def optimize(func, mu, sigma,
@@ -8,7 +31,9 @@ def optimize(func, mu, sigma,
              max_iter=2000,
              fitness_shaping=True, mirrored_sampling=True, record_history=False,
              rng=None,
-             parallel_threads=None):
+             parallel_threads=None,
+             checkpoint_interval=None,
+             load_existing_checkpoint=False):
     """
     Evolution strategies using the natural gradient of multinormal search distributions in natural coordinates.
     Does not consider covariances between parameters.
@@ -32,11 +57,27 @@ def optimize(func, mu, sigma,
     elif isinstance(rng, int):
         rng = np.random.RandomState(seed=rng)
 
+    mu = mu.copy()
+    sigma = sigma.copy()
     generation = 0
     history_mu = []
     history_sigma = []
     history_pop = []
     history_fitness = []
+
+    mutable_locals = ['rng', 'mu', 'sigma', 'generation', 'history_mu', 'history_sigma', 'history_pop', 'history_fitness']
+
+    if load_existing_checkpoint:
+        state = load_checkpoint()
+        if state:
+            rng = state['rng']
+            mu = state['mu']
+            sigma = state['sigma']
+            generation = state['generation'] + 1
+            history_mu = state['history_mu']
+            history_sigma = state['history_sigma']
+            history_pop = state['history_pop']
+            history_fitness = state['history_fitness']
 
     while True:
         s = rng.normal(0, 1, size=(population_size, *np.shape(mu)))
@@ -76,15 +117,13 @@ def optimize(func, mu, sigma,
             history_pop.append(z.copy())
             history_fitness.append(fitness.copy())
 
+        if checkpoint_interval is not None and generation % checkpoint_interval == 0:
+            create_checkpoint(locals(), mutable_locals, generation)
+
         generation += 1
 
         # exit if max iterations reached
         if generation > max_iter or np.all(sigma < 1e-10):
             break
 
-    return {'mu': mu,
-            'sigma': sigma,
-            'history_mu': history_mu,
-            'history_sigma': history_sigma,
-            'history_fitness': history_fitness,
-            'history_pop': history_pop}
+    return lib.create_results_dict(mu, sigma, history_mu, history_sigma, history_fitness, history_pop)

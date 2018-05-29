@@ -1,4 +1,14 @@
 import numpy as np
+import pickle
+
+
+def create_results_dict(mu, sigma, history_mu, history_sigma, history_fitness, history_pop):
+    return {'mu': mu,
+            'sigma': sigma,
+            'history_mu': history_mu,
+            'history_sigma': history_sigma,
+            'history_fitness': history_fitness,
+            'history_pop': history_pop}
 
 
 def default_population_size(dimensions):
