@@ -1,6 +1,9 @@
+import logging
 import multiprocessing as mp
 import numpy as np
 from . import lib
+
+logger = logging.getLogger(__name__)
 
 
 def optimize(func, mu, sigma,
@@ -8,12 +11,21 @@ def optimize(func, mu, sigma,
              max_iter=2000,
              fitness_shaping=True, mirrored_sampling=True, record_history=False,
              rng=None,
-             parallel_threads=None):
+             parallel_threads=None,
+             verbosity=logging.WARNING):
     """
     Evolution strategies using the natural gradient of multinormal search distributions in natural coordinates.
     Does not consider covariances between parameters.
     See Wierstra et al. (2014). Natural evolution strategies. Journal of Machine Learning Research, 15(1), 949-980.
     """
+
+    logger_ch = logging.StreamHandler()
+    logger_fh = logging.FileHandler('snes.log', 'w')
+    logger_ch.setFormatter(logging.Formatter('%(asctime)s %(levelname)s:%(name)s %(message)s'))
+    logger_fh.setFormatter(logging.Formatter('%(asctime)s %(levelname)s:%(name)s %(message)s'))
+    logger.setLevel(verbosity)
+    logger.addHandler(logger_ch)
+    logger.addHandler(logger_fh)
 
     if not isinstance(mu, np.ndarray):
         raise TypeError('mu needs to be of type np.ndarray')
@@ -38,6 +50,7 @@ def optimize(func, mu, sigma,
     history_pop = []
     history_fitness = []
 
+    logger.info('starting evolution with {} individuals per generation on {} threads'.format(population_size * (1 + int(mirrored_sampling)), parallel_threads))
     while True:
         s = rng.normal(0, 1, size=(population_size, *np.shape(mu)))
         z = mu + sigma * s
@@ -70,6 +83,11 @@ def optimize(func, mu, sigma,
         mu += learning_rate_mu * sigma * np.dot(utility, s)
         sigma *= np.exp(learning_rate_sigma / 2. * np.dot(utility, s ** 2 - 1))
 
+        logger.info('generation {}, average fitness {}'.format(generation, np.mean(fitness)))
+        logger.debug('fitness {}'.format(fitness))
+        logger.debug('mu {}'.format(mu))
+        logger.debug('sigma {}'.format(sigma))
+
         if record_history:
             history_mu.append(mu.copy())
             history_sigma.append(sigma.copy())
@@ -79,7 +97,10 @@ def optimize(func, mu, sigma,
         generation += 1
 
         # exit if max iterations reached
-        if generation > max_iter or np.all(sigma < 1e-10):
+        if generation > max_iter:
+            logger.info('maximum number of iterations reached - exiting')
+            break
+        elif np.all(sigma < 1e-10):
             break
 
     return {'mu': mu,
