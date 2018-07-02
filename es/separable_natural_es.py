@@ -50,7 +50,11 @@ def optimize(func, mu, sigma,
     history_pop = []
     history_fitness = []
 
-    logger.info('starting evolution with {} individuals per generation on {} threads'.format(population_size * (1 + int(mirrored_sampling)), parallel_threads))
+    n_total_individuals = population_size * (1 + int(mirrored_sampling))
+    logger.info('starting evolution with {} individuals per generation on {} threads'.format(n_total_individuals, parallel_threads))
+    if (parallel_threads is None and n_total_individuals > 1) or (parallel_threads is not None and n_total_individuals > parallel_threads):
+        logger.warning('more individuals than parallel threads. expect long runtime')
+
     while True:
         s = rng.normal(0, 1, size=(population_size, *np.shape(mu)))
         z = mu + sigma * s
@@ -101,6 +105,7 @@ def optimize(func, mu, sigma,
             logger.info('maximum number of iterations reached - exiting')
             break
         elif np.all(sigma < 1e-10):
+            logger.info('convergence of sigma detected - exiting')
             break
 
     return {'mu': mu,
